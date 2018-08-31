@@ -1,0 +1,10 @@
+
+    Escrever uma rotina para somar ou subtrair dois números inteiros de 16 bits com sinal e armazenar o resultado em uma variável de 16 bits, também com sinal. A operação a ser feita é passada no acumulador. Se for 0 é uma soma, de for 1 é uma subtração. Se houver “overflow” ou “underflow” deve retornar 1 no acumulador, em caso contrário retorna 0. Os endereços das variáveis de entrada (duas) e de saída (uma) são passados na pilha. Escrever um programa exemplo. (2,0 pontos)
+
+    Escrever uma rotina para multiplicar dois números inteiros de 8 bits com sinal e armazenar o resultado em uma variável de 16 bits, também com sinal. Se houver “overflow” deve retornar 1 no acumulador, em caso contrário retorna 0. Os endereços das variáveis de entrada e de saída são passados na pilha. Escrever um programa exemplo. (2,0 ponto)
+
+    Escrever uma rotina para ler um valor decimal do teclado e armazenar em uma variável de 16 bits com sinal. A entrada do número é terminada com #. Usar * para indicar um número negativo. O endereço da variável é passado na pilha. Escrever um programa exemplo. (2,0 pontos).
+
+    Escrever uma rotina para determinar o número de elementos positivos, negativos e iguais a zero em um vetor com elementos de 16 bits. O endereço do vetor é passado na pilha, o tamanho no acumulador. O resultado deve ser impresso em hexadecimal no banner e na console. Apresente um exemplo com um vetor com pelo menos 10 posições. (2,0 pontos)
+
+    Escreva uma rotina para verificar se uma cadeia de caracteres é palíndrome, ou seja, se dá o mesmo resultado quando lida da direita para a esquerda ou da esquerda para a direita, ignorando brancos e pontuações (“a cara rajada da jararaca” é um exemplo). O endereço do início da cadeia é passado como parâmetro na pilha e a cadeia é terminada com NULL. Se a cadeia for uma palíndrome, o acumulador deve valer zero ao final; caso contrário, deve ter o valor 1. Apresente um programa exemplo que leia a cadeia da console e escreva o resultado também na console. (2,0 pontos)
