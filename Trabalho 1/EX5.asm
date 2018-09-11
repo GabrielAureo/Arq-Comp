@@ -1,26 +1,85 @@
 ;---------------------------------------------------
-; Programa: ULTIMATE PALINDROME ASSEMBLY DETECTOR NG404
-; Autor: GABRIEL AUREO
-; Data: 06/09/2018
+; Program: ULTIMATE PALINDROME DETECTOR
+; Author: GABRIEL AUREO
+; Date: 06/09/2018
 ;---------------------------------------------------
 
 ORG 100
-
-STR: STR "a cara rajada da jararaca"
+PALINDROMO: STR "a cara rajada da jararaca"
 DW 0
-STRPOINTER: DW STR
+PALINPNTR: DW PALINDROMO
 
 ORG 0
 MAIN:
-LDA STRPOINTER
+
+LDA PALINPNTR
 PUSH
-LDA STRPOINTER+1
+LDA PALINPNTR +1
 PUSH
-JSR PALINDROMO
+JSR PALINDROMOCHK
+
 HLT
-END
+END MAIN
 
-ORG 300
+ORG 2000
+SP: DW 0
+STR: DW 0
+PTR: DW 0
+DIG: DB 0
+LEN: DB 0
 
-ORG 200
-PALINDROMO:
+ACENTOS: STR "ÁÀÂÃâáàâãÉÈÊéèêÍÌÎíìîÓÒÔóòôÚÙÛÜúùûü"
+DW 0
+SUBST: STR "aaaaaaaaeeeeeeiiiiiioooooouuuuuuuu"
+DW 0
+
+ORG 1000
+PALINDROMOCHK:
+STS SP
+POP
+POP
+
+POP
+STA STR + 1
+POP
+STA STR
+
+LDS STR
+STS PTR
+
+POP
+STA LEN
+
+ITERASTR:
+LDA @PTR
+STA DIG
+OR #0
+JZ ITERAFIM
+
+LDS PTR
+POP
+STS PTR
+JMP ITERASTR
+
+ITERAFIM:
+
+
+
+LDS SP
+RET
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
