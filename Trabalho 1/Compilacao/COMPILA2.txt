@@ -1,0 +1,256 @@
+Compilação (assembly) do texto C:\Users\gabri\Documents\Arq Comp\Trabalho 1\Codigos\EX2.asm
+Em 11/09/2018
+
+   1                         ;---------------------------------------------------
+   2                         ; Programa: MULTIPLICAÇÃO 8 BITS
+   3                         ; Autor: GABRIEL AUREO
+   4                         ; Data: 04/09/2018
+   5                         ;---------------------------------------------------
+   6                         
+   7                         ;VARIAVEIS DA ROTNA PRINCIPAL
+   8                         ORG 0
+   9   0000    0037            TEST: DW 55
+  10   0002    00              N: DB 0
+  11   0003    0002            PN : DW N
+  12   0005    00              M: DB 0
+  13   0006    0005            PM: DW M
+  14   0008    0000            RES: DW 0
+  15   000A    0008            PRES: DW RES
+  16                         
+  17                         ORG 100
+  18                         
+  19   0064                  MAIN:
+  20   0064    20 03 00        LDA PN
+  21   0067    E0              PUSH
+  22   0068    20 04 00        LDA PN +1
+  23   006B    E0              PUSH
+  24   006C    D0 F4 01        JSR SCAN
+  25   006F    20 06 00        LDA PM
+  26   0072    E0              PUSH
+  27   0073    20 07 00        LDA PM+1
+  28   0076    E0              PUSH
+  29   0077    D0 F4 01        JSR SCAN
+  30                         
+  31                         
+  32   007A    20 03 00        LDA PN
+  33   007D    E0              PUSH
+  34   007E    20 04 00        LDA PN +1
+  35   0081    E0              PUSH
+  36   0082    20 06 00        LDA PM
+  37   0085    E0              PUSH
+  38   0086    20 07 00        LDA PM +1
+  39   0089    E0              PUSH
+  40   008A    20 0A 00        LDA PRES
+  41   008D    E0              PUSH
+  42   008E    20 0B 00        LDA PRES +1
+  43   0091    E0              PUSH
+  44   0092    D0 E8 03        JSR MULT
+  45   0095    FC              HLT
+  46                           END MAIN
+  47                         
+  48                         ORG 300
+  49                         
+  50                         ;VARIAVEIS SCANB
+  51                         
+  52   012C    0000          SP0: DW 0
+  53   012E    0000          INPUT: DW 0
+  54                         
+  55                         ORG 500
+  56                         ;SUBROTINA QUE SCANEIA ENTRADA E GUARDA EM UM PONTEIRO PASSADO PELA PILHA
+  57   01F4                  SCAN:
+  58   01F4    14 2C 01        STS SP0
+  59   01F7    E4              POP
+  60   01F8    E4              POP
+  61   01F9    E4              POP
+  62   01FA    10 2F 01        STA INPUT +1
+  63   01FD    E4              POP
+  64   01FE    10 2E 01        STA INPUT
+  65                         
+  66   0201                  INPUTLOOP:
+  67   0201    C2 01           IN 1
+  68   0203    52 01           AND #1
+  69   0205    A0 01 02        JZ INPUTLOOP
+  70   0208    C2 00           IN 0
+  71   020A    11 2E 01        STA @INPUT
+  72                         
+  73   020D    24 2C 01        LDS SP0
+  74   0210    D8              RET
+  75                         
+  76                         ORG 800
+  77   0320    0000            X: DW 0
+  78   0322    0000            Y: DW 0
+  79                           ;X E Y SÃO INICIALIZADAS COM 2 BYTES CADA PARA NÃO SER PRECISO DECLARAR PONTEIROS INDIVIDUAIS
+  80   0324    0000            Z: DW 0 ;VARIÁVEL PARA ACUMULAR AS SOMAS DE ENTRE X E Y
+  81   0326    0000            PTR: DW 0 ;PONTEIRO PARA O RESULTADO
+  82   0328    00              HIOF: DB 0 ;VARIÁVEL USADA PARA GUARDAR FLAG DE OVERFLOW AO DUPLICAR X
+  83   0329    00              OF: DB 0 ;FLAG DE OVERFLOW DA MULTIPLICAÇÃO
+  84   032A    0000            SP1: DW 0
+  85                         
+  86                         ORG 1000
+  87                         ;ROTINA DE MULTIPLICAÇÃO BASEADA NO ALGORITMO DE MULTIPLICAÇÃO RUSSA
+  88                         ;PSEUDOCÓDIGO:
+  89                         ;1)RESULTADO = 0
+  90                         ;2)ENQUANTO Y > 0
+  91                           ;A) SE Y FOR ÍMPAR, SOMAR X AO RESULTADO
+  92                           ;B) DUPLICAR X E DIVIDIR Y POR 2
+  93   03E8                  MULT:
+  94   03E8    14 2A 03        STS SP1
+  95   03EB    E4              POP
+  96   03EC    E4              POP
+  97   03ED    E4              POP
+  98   03EE    10 27 03        STA PTR + 1
+  99   03F1    E4              POP
+ 100   03F2    10 26 03        STA PTR
+ 101   03F5    E4              POP
+ 102                           ;CARREGA Y COM O ENDEREÇO DE M
+ 103   03F6    10 23 03        STA Y+1
+ 104   03F9    E4              POP
+ 105   03FA    10 22 03        STA Y
+ 106                           ;CARREGA X COM O ENDEREÇO DE N
+ 107   03FD    E4              POP
+ 108   03FE    10 21 03        STA X+1
+ 109   0401    E4              POP
+ 110   0402    10 20 03        STA X
+ 111                         
+ 112                           ;CARREGA X E Y COM OS VALORES DE N E M
+ 113   0405    21 20 03        LDA @X
+ 114   0408    10 20 03        STA X
+ 115   040B    21 22 03        LDA @Y
+ 116   040E    10 22 03        STA Y
+ 117                         
+ 118                           ;VERIFICA SE É UMA MULTIPLICAÇÃO DE NEGATIVOS E CONVERTE PARA POSITIVOS
+ 119   0411    20 20 03        LDA X
+ 120   0414    50 22 03        AND Y
+ 121   0417    90 1D 04        JN NEGATE
+ 122   041A    80 35 04        JMP EXTEND
+ 123   041D                  NEGATE:
+ 124   041D    22 00           LDA #0
+ 125   041F    38 20 03        SUB X
+ 126   0422    10 20 03        STA X
+ 127   0425    22 00           LDA #0
+ 128   0427    38 22 03        SUB Y
+ 129   042A    10 22 03        STA Y
+ 130   042D    22 01           LDA #1
+ 131                           ;SETA A FLAG DE OVERFLOW
+ 132   042F    10 29 03        STA OF
+ 133   0432    80 5B 04        JMP INVERT
+ 134                         
+ 135                           ;EXTENDE X E Y NEGATIVOS PARA 2 BYTES
+ 136   0435                  EXTEND:
+ 137   0435    20 20 03        LDA X
+ 138                           ;STA X
+ 139   0438    90 3E 04        JN EXTENDX
+ 140   043B    80 51 04        JMP EXTENDY
+ 141   043E                  EXTENDX:
+ 142   043E    22 01           LDA #1
+ 143   0440    10 29 03        STA OF
+ 144   0443    22 FF           LDA #0FFH
+ 145   0445    10 21 03        STA X+1
+ 146                         
+ 147   0448    20 22 03        LDA Y
+ 148                           ;STA Y
+ 149   044B    90 51 04        JN EXTENDY
+ 150   044E    80 79 04        JMP MULTLOOP
+ 151   0451                  EXTENDY:
+ 152   0451    22 01           LDA #1
+ 153   0453    10 29 03        STA OF
+ 154   0456    22 FF           LDA #0FFH
+ 155   0458    10 23 03        STA Y+1
+ 156                         
+ 157   045B                  INVERT:
+ 158                           ;INVERTE X E Y CASO X SEJA MAIOR QUE Y (REDUZ A QUANTIDADE DE ITERAÇÕES DA MULTIPLICAÇÃO)
+ 159   045B    20 20 03        LDA X
+ 160   045E    38 22 03        SUB Y
+ 161   0461    90 67 04        JN SWAP
+ 162   0464    80 79 04        JMP MULTLOOP
+ 163   0467                    SWAP:
+ 164   0467    21 20 03        LDA @X
+ 165   046A    10 24 03        STA Z
+ 166   046D    21 22 03        LDA @Y
+ 167   0470    10 20 03        STA X
+ 168   0473    20 24 03        LDA Z
+ 169   0476    10 22 03        STA Y
+ 170                         
+ 171   0479                  MULTLOOP:
+ 172                         ;VERIFICA SE Y FOI DIVIDIDO AO PONTO DE CHEGAR A 0 OU -1
+ 173   0479    20 22 03        LDA Y
+ 174   047C    A0 C5 04        JZ RETURN
+ 175   047F    60              NOT
+ 176   0480    A0 C5 04        JZ RETURN
+ 177   0483    20 22 03        LDA Y
+ 178   0486    52 01           AND #1
+ 179   0488    A0 A0 04        JZ SHIFT
+ 180                         
+ 181   048B                  SOMA:
+ 182   048B    20 24 03        LDA Z
+ 183   048E    30 20 03        ADD X
+ 184   0491    10 24 03        STA Z
+ 185   0494    20 25 03        LDA Z+1
+ 186   0497    34 21 03        ADC X+1
+ 187   049A    10 25 03        STA Z+1
+ 188   049D    B0 C5 04        JC RETURN
+ 189                         ;CASO OCORRA OVERFLOW AO INCREMENTAR O RESULTADO, OBRIGATORIAMENTE O VALOR DA MULTIPLICAÇÃO FOI ALCANÇANDO, PORTANTO A ROTINA PODE TERMINAR
+ 190                         
+ 191   04A0                  SHIFT:
+ 192                         ;DOBRA O PRIMEIRO VALOR
+ 193   04A0    20 20 03        LDA X
+ 194   04A3    70              SHL
+ 195   04A4    10 20 03        STA X
+ 196   04A7    22 00           LDA #0
+ 197   04A9    B4 AE 04        JNC HISHIFT
+ 198   04AC    22 01           LDA #1
+ 199                         
+ 200   04AE                  HISHIFT:
+ 201   04AE    10 28 03        STA HIOF
+ 202   04B1    20 21 03        LDA X+1
+ 203   04B4    70              SHL
+ 204   04B5    30 28 03        ADD HIOF
+ 205   04B8    10 21 03        STA X+1
+ 206                         ;DIVIDE O SEGUNDO VALOR
+ 207   04BB    20 22 03        LDA Y
+ 208   04BE    78              SRA
+ 209   04BF    10 22 03        STA Y
+ 210   04C2    80 79 04        JMP MULTLOOP
+ 211                         
+ 212   04C5                  RETURN:
+ 213   04C5    20 29 03        LDA OF
+ 214   04C8    24 24 03        LDS Z
+ 215   04CB    15 26 03        STS @PTR
+ 216   04CE    24 2A 03        LDS SP1
+ 217   04D1    D8              RET
+ 218                         
+
+Listagem da tabela de símbolos
+
+Símbolo         Linha  Endereço
+EXTEND            135  0435
+EXTENDX           140  043E
+EXTENDY           150  0451
+HIOF               81  0328
+HISHIFT           199  04AE
+INPUT              52  012E
+INPUTLOOP          65  0201
+INVERT            156  045B
+M                  11  0005
+MAIN               18  0064
+MULT               92  03E8
+MULTLOOP          170  0479
+N                   9  0002
+NEGATE            122  041D
+OF                 82  0329
+PM                 12  0006
+PN                 10  0003
+PRES               14  000A
+PTR                80  0326
+RES                13  0008
+RETURN            211  04C5
+SCAN               56  01F4
+SHIFT             190  04A0
+SOMA              180  048B
+SP0                51  012C
+SP1                83  032A
+SWAP              162  0467
+TEST                8  0000
+X                  76  0320
+Y                  77  0322
+Z                  79  0324

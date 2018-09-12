@@ -1,0 +1,228 @@
+Compilação (assembly) do texto C:\Users\gabri\Documents\Arq Comp\Trabalho 1\Codigos\EX1.asm
+Em 11/09/2018
+
+   1                         ;---------------------------------------------------
+   2                         ; Programa: EX 1 - TRABALHO 1
+   3                         ; Autores: GABRIEL AUREO
+   4                         ; Data: 02/09/2018
+   5                         ;---------------------------------------------------
+   6                         ORG 60H
+   7   0060    0000            N: DW 0
+   8   0062    0060            PN: DW N ;PONTEIRO PRA N
+   9   0064    0000            M: DW 0
+  10   0066    0064            PM: DW M ;PONTEIRO PRA M
+  11   0068    0000            RESULTADO: DW 0
+  12   006A    0068            PRESULTADO: DW RESULTADO ;PONTEIRO PRO RESULTADO
+  13   006C    00              OP: DB 0
+  14                         
+  15                         ORG 0
+  16                         
+  17   0000                  MAIN:
+  18                         ;ESCANEIA MODO DE OPERAÇÃO (ADIÇÃO OU SUBTRAÇÃO)
+  19   0000                   SCANOP:
+  20   0000    C2 01           IN 1
+  21   0002    52 01           AND #1
+  22   0004    A0 00 00        JZ SCANOP
+  23   0007    C2 00           IN 0
+  24   0009    10 6C 00        STA OP
+  25                           ;VERIFICA SE OP É 1 OU 0
+  26   000C    20 6C 00        LDA OP ;APESAR DO ACC JÁ CONTER O VALOR DE OP, ELE É CARREGADO NOVAMENTE PARA SETAR A FLAG Z
+  27   000F    A0 17 00        JZ SCANVALS
+  28   0012    3A 01           SUB #1
+  29   0014    A4 00 00        JNZ SCANOP
+  30                         
+  31                         
+  32   0017                   SCANVALS:
+  33                         ;PASSA O ENDEREÇO DO PRIMEIRO VALOR COMO ARGUMENTO PELA PILHA PARA RECEBER ENTRADA DO USUÁRIO
+  34   0017    20 62 00        LDA PN
+  35   001A    E0              PUSH
+  36   001B    20 63 00        LDA PN +1
+  37   001E    E0              PUSH
+  38   001F    D0 F4 01        JSR SCANW
+  39                         
+  40                         ;PASSA O ENDEREÇO DO SEGUNDO VALOR COMO ARGUMENTO PELA PILHA PARA RECEBER ENTRADA DO USUÁRIO
+  41   0022    20 66 00        LDA PM
+  42   0025    E0              PUSH
+  43   0026    20 67 00        LDA PM + 1
+  44   0029    E0              PUSH
+  45   002A    D0 F4 01        JSR SCANW
+  46                         
+  47   002D    20 62 00        LDA PN ;PASSA O PRIMEIRO ARGUMENTO DE OPERADOIS ATRAVÉS DA PILHA
+  48   0030    E0              PUSH
+  49   0031    20 63 00        LDA PN +1
+  50   0034    E0              PUSH
+  51   0035    20 66 00        LDA PM ;PASSA O SEGUNDO ARGUMENTO DE OPERADOIS ATRAVÉS DA PILHA
+  52   0038    E0              PUSH
+  53   0039    20 67 00        LDA PM + 1
+  54   003C    E0              PUSH
+  55   003D    20 6A 00        LDA PRESULTADO ;PASSA O ENDEREÇO A SER CARREGADO O RESULTADO DE OPERADOIS ATRAVÉS DA PILHA
+  56   0040    E0              PUSH
+  57   0041    20 6B 00        LDA PRESULTADO + 1
+  58   0044    E0              PUSH
+  59   0045    20 6C 00        LDA OP ;PASSA A OPERAÇÃO A SER REALIZADA EM OPERADOIS ATRAVÉS DO ACUMULADOR
+  60   0048    D0 84 03        JSR OPERADOIS ;CHAMA A SUBROTINA OPERADOIS
+  61   004B    C6 00           OUT 0
+  62   004D    FC              HLT
+  63                         
+  64                         END MAIN
+  65                         
+  66                         ORG 300
+  67                         
+  68                         ;VARIAVEIS SCANB
+  69                         
+  70   012C    0000          SP0: DW 0
+  71   012E    0000          INPUT: DW 0
+  72                         
+  73                         ORG 500
+  74                         ;SUBROTINA QUE SCANEIA ENTRADA E GUARDA EM UM PONTEIRO PASSADO PELA PILHA
+  75   01F4                  SCANW:
+  76   01F4    14 2C 01        STS SP0
+  77                         
+  78   01F7    E4              POP
+  79   01F8    E4              POP
+  80                         
+  81   01F9    E4              POP
+  82   01FA    10 2F 01        STA INPUT +1
+  83   01FD    E4              POP
+  84   01FE    10 2E 01        STA INPUT
+  85                         
+  86                         ;LÊ A PARTE BAIXA DO NÚMERO DE 16 BITS
+  87   0201                  INPUTLOW:
+  88   0201    C2 01           IN 1
+  89   0203    52 01           AND #1
+  90   0205    A0 01 02        JZ INPUTLOW
+  91   0208    C2 00           IN 0
+  92   020A    11 2E 01        STA @INPUT
+  93                         
+  94                         ;INCREMENTA O ENDEREÇO APONTADO POR INPUT, A FIM DE APONTAR PARA A PARTE ALTA DA VARIÁVEL DE SAÍDA
+  95   020D    24 2E 01        LDS INPUT
+  96   0210    E4              POP
+  97   0211    14 2E 01        STS INPUT
+  98                         
+  99                         ;LÊ A PARTE ALTA DO NÚMERO DE 16 BITS
+ 100   0214                  INPUTHIGH:
+ 101   0214    C2 01           IN 1
+ 102   0216    52 01           AND #1
+ 103   0218    A0 14 02        JZ INPUTHIGH
+ 104   021B    C2 00           IN 0
+ 105   021D    11 2E 01        STA @INPUT
+ 106                         
+ 107                         ;RESTAURA PONTEIRO DA PILHA E RETORNA
+ 108   0220    24 2C 01        LDS SP0
+ 109   0223    D8              RET
+ 110                         
+ 111                         ORG 800
+ 112                         ;VARIÁREIS DA ROTINA OPERADOIS
+ 113   0320    0000          SP1: DW 0
+ 114   0322    00            MODO: DB 0
+ 115   0323    0000          X: DW 0
+ 116   0325    0000          Y: DW 0
+ 117   0327    0000          Z: DW 0
+ 118                         
+ 119                         ORG 900
+ 120   0384                  OPERADOIS:
+ 121   0384    14 20 03        STS SP1
+ 122                         
+ 123   0387    10 22 03        STA MODO
+ 124                         
+ 125   038A    E4              POP
+ 126   038B    E4              POP
+ 127                         
+ 128   038C    E4              POP
+ 129   038D    10 28 03        STA Z + 1
+ 130   0390    E4              POP
+ 131   0391    10 27 03        STA Z
+ 132                         
+ 133   0394    E4              POP
+ 134   0395    10 26 03        STA Y +1
+ 135   0398    E4              POP
+ 136   0399    10 25 03        STA Y
+ 137                         
+ 138   039C    E4              POP
+ 139   039D    10 24 03        STA X +1
+ 140   03A0    E4              POP
+ 141   03A1    10 23 03        STA X
+ 142                         
+ 143                         ;VERIFICA SE É UMA ADIÇÃO OU SUBTRAÇÃO
+ 144   03A4    20 22 03        LDA MODO
+ 145   03A7    3A 01           SUB #1
+ 146   03A9    A4 D6 03        JNZ ADICAO
+ 147                         
+ 148   03AC    21 23 03        LDA @X
+ 149   03AF    39 25 03        SUB @Y
+ 150   03B2    11 27 03        STA @Z
+ 151                         
+ 152   03B5    24 27 03        LDS Z
+ 153   03B8    E4              POP
+ 154   03B9    14 27 03        STS Z
+ 155   03BC    24 23 03        LDS X
+ 156   03BF    E4              POP
+ 157   03C0    14 23 03        STS X
+ 158   03C3    24 25 03        LDS Y
+ 159   03C6    E4              POP
+ 160   03C7    14 25 03        STS Y
+ 161                         
+ 162   03CA    21 23 03        LDA @X
+ 163   03CD    3D 25 03        SBC @Y
+ 164   03D0    11 27 03        STA @Z
+ 165   03D3    80 FD 03        JMP RETORNO
+ 166                         
+ 167   03D6                  ADICAO:
+ 168   03D6    21 23 03        LDA @X
+ 169   03D9    31 25 03        ADD @Y
+ 170   03DC    11 27 03        STA @Z
+ 171                         
+ 172   03DF    24 27 03        LDS Z
+ 173   03E2    E4              POP
+ 174   03E3    14 27 03        STS Z
+ 175   03E6    24 23 03        LDS X
+ 176   03E9    E4              POP
+ 177   03EA    14 23 03        STS X
+ 178   03ED    24 25 03        LDS Y
+ 179   03F0    E4              POP
+ 180   03F1    14 25 03        STS Y
+ 181                         
+ 182   03F4    21 23 03        LDA @X
+ 183   03F7    35 25 03        ADC @Y
+ 184   03FA    11 27 03        STA @Z
+ 185                         
+ 186   03FD                  RETORNO:
+ 187   03FD    11 27 03        STA @Z
+ 188   0400    B0 08 04        JC OVERFLOW
+ 189   0403    22 00           LDA #0
+ 190   0405    80 0A 04        JMP FINAL
+ 191   0408                  OVERFLOW:
+ 192   0408    22 01           LDA #1
+ 193   040A                  FINAL:
+ 194   040A    24 20 03        LDS SP1
+ 195   040D    D8              RET
+ 196                         
+
+Listagem da tabela de símbolos
+
+Símbolo         Linha  Endereço
+ADICAO            166  03D6
+FINAL             192  040A
+INPUT              70  012E
+INPUTHIGH          99  0214
+INPUTLOW           86  0201
+M                   8  0064
+MAIN               16  0000
+MODO              113  0322
+N                   6  0060
+OP                 12  006C
+OPERADOIS         119  0384
+OVERFLOW          190  0408
+PM                  9  0066
+PN                  7  0062
+PRESULTADO         11  006A
+RESULTADO          10  0068
+RETORNO           185  03FD
+SCANOP             18  0000
+SCANVALS           31  0017
+SCANW              74  01F4
+SP0                69  012C
+SP1               112  0320
+X                 114  0323
+Y                 115  0325
+Z                 116  0327
